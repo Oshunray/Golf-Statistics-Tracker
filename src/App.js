@@ -28,7 +28,7 @@ import {SignUpButton, LoginButton} from './Account';
 
 import { onAuthStateChanged } from "firebase/auth";
 import { auth, db } from "./firebase";
-import { doc, getDoc, setDoc, updateDoc, arrayUnion, arrayRemove } from "firebase/firestore";
+import { doc, getDoc, updateDoc} from "firebase/firestore";
 
 import Statistics from './Statistics';
 

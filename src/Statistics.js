@@ -2,7 +2,6 @@
 import { calculateAverage, calculateYearlyAverages, calculateMin, StatSelector, calculateMovingYearlyAverages } from "./statsUtils";
 import { useState } from "react";
 import { LineGraph } from "./chartSetup";
-import { getStatValue } from "./statsUtils";
 
 export function getStatValues(rounds, statKey) {
   // Filter out rounds that don't have the stat

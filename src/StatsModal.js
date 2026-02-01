@@ -12,7 +12,6 @@ function StatsModal({
   // LOCAL draft state - Initialize properly from props
   const [draftSelectedStats, setDraftSelectedStats] = useState([]);
   const [draftStats, setDraftStats] = useState({});
-  const [customModal, setCustomModal] = useState(false);
 
   // Initialize state when modal opens
   useEffect(() => {

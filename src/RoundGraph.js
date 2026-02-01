@@ -63,7 +63,6 @@ function RoundGraph({ clickedRound, allRounds, availableStats }) {
     }
 
     const isPercentage = selectedStats[safeCurrentStat].type === "ratio";
-    const isBetterLower = statKey === "putts" || statKey === "score";
 
     // Only calculate if we have valid values
     const hasValidComparison = currentValue !== null && avgValue !== null && !isNaN(avgValue);
