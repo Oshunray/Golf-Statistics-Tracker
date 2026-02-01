@@ -11,7 +11,7 @@ import './RoundGraph.css';
 import './StatsPreview.css';
 import './CustomStatsModal.css';
 
-import { useState, useEffect, useRef} from "react";
+import { useState, useEffect, useRef } from "react";
 
 
 import AddRound from './AddRound';
@@ -24,11 +24,11 @@ import StatsPreview from './StatsPreview';
 import CustomStatsModal from './CustomStatsModal';
 
 import Home from './Home';
-import {SignUpButton, LoginButton} from './Account';
+import { SignUpButton, LoginButton } from './Account';
 
 import { onAuthStateChanged } from "firebase/auth";
 import { auth, db } from "./firebase";
-import { doc, getDoc, updateDoc} from "firebase/firestore";
+import { doc, getDoc, updateDoc } from "firebase/firestore";
 
 import Statistics from './Statistics';
 
@@ -44,15 +44,15 @@ function GolfApp() {
 
 
   const [AVAILABLE_STATS, setAvailableStats] = useState([
-    { key: "fairways", label: "Fairways Hit", type: "ratio", max: 18, min: 0},
+    { key: "fairways", label: "Fairways Hit", type: "ratio", max: 18, min: 0 },
     { key: "greens", label: "Greens in Regulation", type: "ratio", max: 18, min: 0 },
-    { key: "putts", label: "Putts", type: "number", min: 0},
-    { key: "up_and_downs", label: "Up and Downs", type: "ratio", min: 0},
-    { key: "bogeyOnParFive", label: "Bogeys on Par 5", type: "number", min: 0},
-    { key: "three-putts", label: "Three Putts", type: "number", min: 0},
-    { key: "bogey_under_130" , label: "Bogeys under 130 yards", type: "number", min: 0},
-    { key: "two_chips", label: "Two Chips", type: "number", min: 0},
-    { key: "double_bogeys", label: "Double Bogeys", type: "number", min: 0}
+    { key: "putts", label: "Putts", type: "number", min: 0 },
+    { key: "up_and_downs", label: "Up and Downs", type: "ratio", min: 0 },
+    { key: "bogeyOnParFive", label: "Bogeys on Par 5", type: "number", min: 0 },
+    { key: "three-putts", label: "Three Putts", type: "number", min: 0 },
+    { key: "bogey_under_130", label: "Bogeys under 130 yards", type: "number", min: 0 },
+    { key: "two_chips", label: "Two Chips", type: "number", min: 0 },
+    { key: "double_bogeys", label: "Double Bogeys", type: "number", min: 0 }
   ]);
 
 
@@ -77,7 +77,9 @@ function GolfApp() {
           // Load rounds from Firebase
           setRounds(userData.rounds || []);
 
-          setAvailableStats(userData.availableStats || AVAILABLE_STATS);
+          if (userData.availableStats) {
+            setAvailableStats(userData.availableStats);
+          }
         }
 
         // Store Availabe Stats with User Data
@@ -102,7 +104,7 @@ function GolfApp() {
     const newRounds = [...rounds, round].sort((a, b) => {
       return new Date(a.date) - new Date(b.date);
     });
-    
+
     setRounds(newRounds);
 
     try {
@@ -119,7 +121,7 @@ function GolfApp() {
     setAvailableStats(updatedStats);
 
     // Update in Firebase
-    if(user) {
+    if (user) {
       try {
         await updateDoc(doc(db, "users", user.uid), {
           availableStats: updatedStats
@@ -169,7 +171,7 @@ function GolfApp() {
   const closeViewRound = async (updatedRound) => {
     setCurrentView("viewHistory");
     setCurrentRound(null);
-    
+
     const newRounds = rounds.map(round =>
       round.id === updatedRound.id ? updatedRound : round
     );
@@ -201,7 +203,7 @@ function GolfApp() {
           isSelected={false}
           onClick={handleRoundClick}
           isHomePage={true}
-          onHover = {setHoveredRound}
+          onHover={setHoveredRound}
         />
       ))
     );
@@ -224,7 +226,7 @@ function GolfApp() {
       <AddRound
         onClose={() => setCurrentView("viewHistory")}
         onAddRound={handleAddRound}
-        availableStats = {AVAILABLE_STATS}
+        availableStats={AVAILABLE_STATS}
         onCustomStatChange={() => setCustomStatModalOpen(true)}
       />
     ),
@@ -258,7 +260,7 @@ function GolfApp() {
                     onClick={handleRoundClick}
                     isClicked={clickedRound && round ? clickedRound.id === round.id : false}
                     onRoundClick={setClickedRound}
-                    onHover = {setHoveredRound}
+                    onHover={setHoveredRound}
                     registerRef={(el) => (roundRefs.current[round.id] = el)}
                   />
                 ))
@@ -278,7 +280,7 @@ function GolfApp() {
           >
             + Add Round
           </button>
-          
+
           {edit ? (
             <>
               {selectedRounds.length > 0 && (
@@ -292,7 +294,7 @@ function GolfApp() {
               <button
                 className="header-btn secondary"
                 onClick={handleCancelEdit}
-                style={{background: '#546e5a', color: 'white', border: 'none'}}
+                style={{ background: '#546e5a', color: 'white', border: 'none' }}
               >
                 Done
               </button>
@@ -301,7 +303,7 @@ function GolfApp() {
             <button
               className="header-btn secondary"
               onClick={() => setEdit(true)}
-              style={{background: '#546e5a', color: 'white', border: 'none'}}
+              style={{ background: '#546e5a', color: 'white', border: 'none' }}
             >
               Edit
             </button>
@@ -343,11 +345,11 @@ function GolfApp() {
       )}
 
       {clickedRound && currentView === "viewHistory" && (
-        <StatsPreview round={clickedRound} roundElementRef={{ current: roundRefs.current[clickedRound.id] }}/>
+        <StatsPreview round={clickedRound} roundElementRef={{ current: roundRefs.current[clickedRound.id] }} />
       )}
 
       {hoveredRound && currentView === "viewHistory" && !clickedRound && (
-        <StatsPreview round={hoveredRound} roundElementRef={{ current: roundRefs.current[hoveredRound.id] }}/>
+        <StatsPreview round={hoveredRound} roundElementRef={{ current: roundRefs.current[hoveredRound.id] }} />
       )}
 
       {customStatModalOpen && (
@@ -361,7 +363,7 @@ function GolfApp() {
         style={{
           marginTop:
             currentView !== "viewHistory" &&
-            currentView !== "addRound"
+              currentView !== "addRound"
               ? "60px"
               : "0"
         }}
