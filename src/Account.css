@@ -1,0 +1,242 @@
+/* Modal Overlay */
+.signup-modal,
+.login-modal,
+.logout-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(5px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  animation: fadeIn 0.3s ease-out;
+}
+
+/* Modal Content Box */
+.signup-modal > div,
+.login-modal > div,
+.logout-modal > div {
+  background: #ffffff;
+  padding: 40px;
+  border-radius: 20px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+  max-width: 450px;
+  width: 90%;
+  max-height: 90vh;
+  overflow-y: auto;
+  animation: slideUp 0.3s ease-out;
+}
+
+/* Headings */
+.signup-modal h2,
+.login-modal h2,
+.logout-modal h3 {
+  margin: 0 0 25px 0;
+  color: #0f4c3a;
+  font-size: 1.8rem;
+  font-weight: 700;
+  text-align: center;
+}
+
+.logout-modal h3 {
+  font-size: 1.3rem;
+  margin-bottom: 30px;
+}
+
+/* Form Labels */
+.signup-modal label,
+.login-modal label {
+  display: block;
+  margin: 15px 0 8px 0;
+  color: #2d3748;
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+
+/* Input Fields */
+.signup-modal input,
+.login-modal input {
+  width: 100%;
+  padding: 12px 15px;
+  border: 2px solid #e2e8f0;
+  border-radius: 10px;
+  font-size: 1rem;
+  transition: all 0.3s ease;
+  box-sizing: border-box;
+}
+
+.signup-modal input:focus,
+.login-modal input:focus {
+  outline: none;
+  border-color: #1a7a5e;
+  box-shadow: 0 0 0 3px rgba(26, 122, 94, 0.1);
+}
+
+/* Error Messages */
+.signup-modal p[style*="color: red"],
+.login-modal p[style*="color: red"] {
+  background: #fee;
+  border: 1px solid #fcc;
+  padding: 10px;
+  border-radius: 8px;
+  margin: 15px 0;
+  font-size: 0.9rem;
+}
+
+/* Buttons Container */
+.signup-modal > div > button,
+.login-modal > div > button,
+.logout-modal > div > button {
+  margin-top: 20px;
+  padding: 12px 30px;
+  border: none;
+  border-radius: 10px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  width: calc(50% - 5px);
+}
+
+.signup-modal > div > button:first-of-type,
+.login-modal > div > button:first-of-type {
+  margin-right: 10px;
+}
+
+/* Primary Action Button (Sign Up / Log In) */
+.signup-modal > div > button:last-of-type:not(:first-of-type),
+.login-modal > div > button:nth-of-type(2) {
+  background: #1a7a5e;
+  color: #ffffff;
+}
+
+.signup-modal > div > button:last-of-type:not(:first-of-type):hover,
+.login-modal > div > button:nth-of-type(2):hover {
+  background: #0f4c3a;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(26, 122, 94, 0.3);
+}
+
+.signup-modal > div > button:last-of-type:not(:first-of-type):disabled,
+.login-modal > div > button:nth-of-type(2):disabled {
+  background: #cbd5e0;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* Cancel Button */
+.signup-modal > div > button:first-of-type,
+.login-modal > div > button:first-of-type,
+.logout-modal > div > button:last-of-type {
+  background: #f7fafc;
+  color: #2d3748;
+  border: 2px solid #e2e8f0;
+}
+
+.signup-modal > div > button:first-of-type:hover,
+.login-modal > div > button:first-of-type:hover,
+.logout-modal > div > button:last-of-type:hover {
+  background: #edf2f7;
+  border-color: #cbd5e0;
+  transform: translateY(-2px);
+}
+
+/* Logout Confirm Button */
+.logout-modal > div > button:first-of-type {
+  background: #e53e3e;
+  color: #ffffff;
+}
+
+.logout-modal > div > button:first-of-type:hover {
+  background: #c53030;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(229, 62, 62, 0.3);
+}
+
+/* Sign Up Link Button (in Login modal) */
+.login-modal > div > button:last-of-type {
+  width: 100%;
+  margin-top: 15px;
+  background: transparent;
+  color: #1a7a5e;
+  border: none;
+  text-decoration: underline;
+  padding: 10px;
+  font-weight: 500;
+}
+
+.login-modal > div > button:last-of-type:hover {
+  color: #0f4c3a;
+  background: transparent;
+  transform: none;
+}
+
+.signup-modal > div > button:last-of-type {
+  width: 100%;
+  margin-top: 15px;
+  background: transparent;
+  color: #1a7a5e;
+  border: none;
+  text-decoration: underline;
+  padding: 10px;
+  font-weight: 500;
+}
+
+.signup-modal > div > button:last-of-type:hover {
+  color: #0f4c3a;
+  background: transparent;
+  transform: none;
+  
+}
+
+/* Animations */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Mobile Responsiveness */
+@media (max-width: 768px) {
+  .signup-modal > div,
+  .login-modal > div,
+  .logout-modal > div {
+    padding: 30px 20px;
+    width: 95%;
+  }
+
+  .signup-modal h2,
+  .login-modal h2 {
+    font-size: 1.5rem;
+  }
+
+  .signup-modal > div > button,
+  .login-modal > div > button,
+  .logout-modal > div > button {
+    width: 100%;
+    margin-right: 0 !important;
+    margin-top: 10px;
+  }
+
+  .login-modal > div > button:last-of-type {
+    margin-top: 20px;
+  }
+}

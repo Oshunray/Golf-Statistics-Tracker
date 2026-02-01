@@ -1,79 +1,275 @@
+body, html {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  background: #ffffff;
+}
+
+* {
+  box-sizing: border-box;
+}
+
 .overlay {
   position: fixed;
   top: 0;
   left: 0;
   right: 0;
   bottom: 0;
-  background-color:rgba(222, 230, 222, 0.979);
+  background-color: rgba(0, 0, 0, 0.5);
   display: flex;
   justify-content: center;
   align-items: center;
   opacity: 0;
   animation: fadeIn 0.5s forwards;
+  z-index: 100;
 }
 
 @keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
   to {
-    opacity: 1;              
+    opacity: 1;
   }
 }
 
 .addRound {
-  background: rgb(152, 212, 144);
-  padding: 20px 30px;
-  border-radius: 20px;
-  width: 300px;
+  background: #f6fbf8;
+  padding: 40px;
+  border-radius: 24px;
+  width: 95%;
+  max-width: 600px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  animation: slideUp 0.4s ease-out;
+  max-height: 95vh;
+  overflow-y: auto;
+  position: relative;
 }
 
-.addRound h2{
+@keyframes slideUp {
+  from {
+    transform: translateY(50px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.addRound h2 {
   text-align: center;
-  font-family: sans-serif;
+  font-family: "Inter", sans-serif;
+  font-size: 28px;
+  color: #1f3d2b;
+  margin: 0 0 30px 0;
+  font-weight: 700;
 }
 
 .addRound label {
   display: block;
-  margin-top: 12px;
-  font-weight: bold;
-  font-family: sans-serif;
-}
-
-.addRound input {
-  width: 100%;
-  padding: 8px;
-  margin-top: 6px;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-  box-sizing: border-box;
-}
-
-.addRound button {
   margin-top: 20px;
-  margin-left: 25px;
-  background-color: #4CAF50;
-  color: white;
-  border: none;
-  border-radius: 4px;
+  margin-bottom: 8px;
+  font-weight: 600;
+  font-family: "Inter", sans-serif;
+  color: #1f3d2b;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.addRound input,
+.addRound select {
+  width: 100%;
+  padding: 14px 16px;
+  border: 2px solid #e6f4ed;
+  border-radius: 10px;
+  box-sizing: border-box;
+  font-size: 16px;
+  background: white;
+  font-family: "Inter", sans-serif;
+  transition: all 0.2s ease;
+}
+
+.addRound input::placeholder {
+  color: #a0aec0;
+  font-style: italic;
+}
+
+.addRound input:focus,
+.addRound select:focus {
+  outline: none;
+  border-color: #7acb9b;
+  box-shadow: 0 0 0 4px rgba(122, 203, 155, 0.1);
+}
+
+.addRound select {
   cursor: pointer;
-  padding: 10px 20px;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%231f3d2b' d='M6 9L1 4h10z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 16px center;
+  padding-right: 40px;
 }
 
-.addRound button:hover {
-  background-color: #45a049;
+.addRound select option {
+  padding: 12px;
+  background: white;
+  color: #1f3d2b;
 }
-
-.addRound button:active {
-  background-color: #3e8e41;
-  box-shadow: 0 2px 3px rgba(0,0,0,0.2);
-}
-
-.view-history-button {
+/* Close Button */
+.cancel-btn-AddRound {
+  position: absolute;
+  background: transparent;
+  right: 20px;
+  border: 2px solid rgba(31, 61, 43, 0.2);
+  color: #1f3d2b;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  font-size: 18px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.2s ease;
   display: flex;
-  padding: 10px 20px;
-  background-color: #2196F3;
-  color: white;
+  align-items: center;
+  justify-content: center;
+  top: 20px;
+  right: 20px;
+}
+
+.cancel-btn-AddRound:hover {
+  background: rgba(252, 129, 129, 0.1);
+  border-color: #fc8181;
+  color: #fc8181;
+  transform: scale(1.1);
+}
+/* Statistics button */
+.addStatistics_optional {
+  width: 100%;
+  margin-top: 25px;
+  padding: 14px 20px;
+  background: linear-gradient(135deg, #cbd5e0 0%, #a0aec0 100%);
+  color: #1f3d2b;
   border: none;
-  border-radius: 4px;
+  border-radius: 12px;
   cursor: pointer;
-  margin-left: 10px;
-  margin-bottom: 20px;
+  font-size: 16px;
+  font-weight: 600;
+  font-family: "Inter", sans-serif;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 12px rgba(160, 174, 192, 0.2);
+}
+
+.addStatistics_optional:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(160, 174, 192, 0.3);
+}
+
+/* Selected statistics display */
+.selected-stats-display {
+  margin-top: 20px;
+  padding: 20px;
+  background: white;
+  border-radius: 12px;
+  border: 2px solid #e6f4ed;
+}
+
+.selected-stats-display h4 {
+  margin: 0 0 15px 0;
+  font-size: 14px;
+  color: #1f3d2b;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  font-family: "Inter", sans-serif;
+}
+
+.selected-stats-display p {
+  margin: 8px 0;
+  padding: 10px 14px;
+  background: #f8fdf9;
+  border-radius: 8px;
+  color: #546e5a;
+  font-family: "Inter", sans-serif;
+  font-size: 14px;
+  border-left: 3px solid #7acb9b;
+}
+
+.selected-stats-display p strong {
+  color: #1f3d2b;
+  margin-right: 8px;
+}
+
+/* Action buttons container */
+.action-buttons {
+  display: flex;
+  gap: 12px;
+  margin-top: 30px;
+  padding-top: 20px;
+  border-top: 1px solid #e6f4ed;
+}
+
+.action-buttons button {
+  flex: 1;
+  padding: 14px 20px;
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+  font-size: 16px;
+  font-weight: 600;
+  font-family: "Inter", sans-serif;
+  transition: all 0.3s ease;
+}
+
+/* Cancel button */
+.cancel-btn {
+  all: unset;
+}
+
+/* Submit button */
+.submit-btn {
+  background: linear-gradient(135deg, #7acb9b 0%, #5fb882 100%);
+  color: white;
+  box-shadow: 0 4px 12px rgba(122, 203, 155, 0.3);
+}
+
+.submit-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(122, 203, 155, 0.4);
+}
+
+.submit-btn:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 8px rgba(122, 203, 155, 0.3);
+}
+
+/* Scrollbar styling for modal */
+.addRound::-webkit-scrollbar {
+  width: 8px;
+}
+
+.addRound::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 10px;
+}
+
+.addRound::-webkit-scrollbar-thumb {
+  background: #7acb9b;
+  border-radius: 10px;
+}
+
+.addRound::-webkit-scrollbar-thumb:hover {
+  background: #5fb882;
+}
+
+/* Responsive */
+@media (max-width: 600px) {
+  .addRound {
+    padding: 30px 20px;
+  }
+
+  .addRound h2 {
+    font-size: 24px;
+  }
 }

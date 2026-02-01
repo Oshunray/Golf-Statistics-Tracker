@@ -1,19 +1,36 @@
 import './App.css';
 import './RoundHistory.css';
 import './ViewRound.css';
-import './HomePage.css';
+import './Dashboard.css';
 import './StatsModal.css'
+import "./chartSetup";
+import './Statistics.css';
+import './Hamburger.css';
+import './Account.css';
+import './RoundGraph.css';
+import './StatsPreview.css';
+import './CustomStatsModal.css';
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef} from "react";
+
 
 import AddRound from './AddRound';
 import RoundHistory from './RoundHistory';
 import ViewRound from './ViewRound';
-import HomePage from './HomePage';
+import Dashboard from './Dashboard';
 import Hamburger from './Hamburger';
-import Statistics, { findMonthlyAverages } from './Statistics';
+import RoundGraph from './RoundGraph';
+import StatsPreview from './StatsPreview';
+import CustomStatsModal from './CustomStatsModal';
 
-import { calculateAverage, calculateMin } from './Statistics';
+import Home from './Home';
+import {SignUpButton, LoginButton} from './Account';
+
+import { onAuthStateChanged } from "firebase/auth";
+import { auth, db } from "./firebase";
+import { doc, getDoc, setDoc, updateDoc, arrayUnion, arrayRemove } from "firebase/firestore";
+
+import Statistics from './Statistics';
 
 function GolfApp() {
   const [currentView, setCurrentView] = useState("home");
@@ -21,41 +38,114 @@ function GolfApp() {
   const [edit, setEdit] = useState(false);
   const [currentRound, setCurrentRound] = useState(null);
   const [selectedRounds, setSelectedRounds] = useState([]);
+  const [clickedRound, setClickedRound] = useState(null);
+  const [hoveredRound, setHoveredRound] = useState(null);
+  const [customStatModalOpen, setCustomStatModalOpen] = useState(false);
 
-  const [profile, setProfile] = useState({
-    name: "Roshun",
-    averageScore: null,
-    minScore: null,
-    monthlyAverages: [],
-    roundsPlayed: 0
-  });
+
+  const [AVAILABLE_STATS, setAvailableStats] = useState([
+    { key: "fairways", label: "Fairways Hit", type: "ratio", max: 18, min: 0},
+    { key: "greens", label: "Greens in Regulation", type: "ratio", max: 18, min: 0 },
+    { key: "putts", label: "Putts", type: "number", min: 0},
+    { key: "up_and_downs", label: "Up and Downs", type: "ratio", min: 0},
+    { key: "bogeyOnParFive", label: "Bogeys on Par 5", type: "number", min: 0},
+    { key: "three-putts", label: "Three Putts", type: "number", min: 0},
+    { key: "bogey_under_130" , label: "Bogeys under 130 yards", type: "number", min: 0},
+    { key: "two_chips", label: "Two Chips", type: "number", min: 0},
+    { key: "double_bogeys", label: "Double Bogeys", type: "number", min: 0}
+  ]);
+
+
+
+  const [user, setUser] = useState(null);
+  const [profile, setProfile] = useState(null);
+
+  const roundRefs = useRef({});
 
   useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
+      if (firebaseUser) {
+        setUser(firebaseUser);
+
+        const snap = await getDoc(
+          doc(db, "users", firebaseUser.uid)
+        );
+
+        if (snap.exists()) {
+          const userData = snap.data();
+          setProfile(userData);
+          // Load rounds from Firebase
+          setRounds(userData.rounds || []);
+
+          setAvailableStats(userData.availableStats || AVAILABLE_STATS);
+        }
+
+        // Store Availabe Stats with User Data
+
+
+        setCurrentView("dashboard");
+      } else {
+        setUser(null);
+        setProfile(null);
+        setRounds([]);
+        setCurrentView("home");
+      }
+    });
+
+    return () => unsubscribe();
+  }, []);
+
+
+  const handleAddRound = async (round) => {
+    if (!user) return;
+
+    const newRounds = [...rounds, round].sort((a, b) => {
+      return new Date(a.date) - new Date(b.date);
+    });
     
-    setProfile(prev => ({
-      ...prev,
-      averageScore: calculateAverage(rounds),
-      minScore: calculateMin(rounds),
-      monthlyAverages: findMonthlyAverages(rounds),
-      roundsPlayed: rounds.length
-    }));
-  }, [rounds]);
+    setRounds(newRounds);
 
-
-  const handleAddRound = (round) => {
-    setRounds(prev => [...prev, round]);
+    try {
+      await updateDoc(doc(db, "users", user.uid), {
+        rounds: newRounds
+      });
+    } catch (error) {
+      console.error("Error adding round:", error);
+    }
   };
 
-  const handleSaveHistory = () => {
-    setEdit(false);
-    setCurrentView("home");
+  const handleOnAddCustomStat = async (newStat) => {
+    const updatedStats = [...AVAILABLE_STATS, newStat];
+    setAvailableStats(updatedStats);
+
+    // Update in Firebase
+    if(user) {
+      try {
+        await updateDoc(doc(db, "users", user.uid), {
+          availableStats: updatedStats
+        });
+      }
+      catch (error) {
+        console.error("Error updating available stats:", error);
+      }
+    }
   };
 
-  const handleDeleteRounds = () => {
-    setRounds(prev =>
-      prev.filter((_, index) => !selectedRounds.includes(index))
-    );
+  const handleDeleteRounds = async () => {
+    if (!user) return;
+
+    const newRounds = rounds.filter((_, index) => !selectedRounds.includes(index));
+    setRounds(newRounds);
     setSelectedRounds([]);
+
+    // Save to Firebase
+    try {
+      await updateDoc(doc(db, "users", user.uid), {
+        rounds: newRounds
+      });
+    } catch (error) {
+      console.error("Error deleting rounds:", error);
+    }
   };
 
   const handleToggleSelect = (index) => {
@@ -76,22 +166,32 @@ function GolfApp() {
     setCurrentView("viewRound");
   };
 
-  const closeViewRound = (updatedRound) => {
-    setCurrentView("home");
+  const closeViewRound = async (updatedRound) => {
+    setCurrentView("viewHistory");
     setCurrentRound(null);
-
-    setRounds(prev =>
-      prev.map(round =>
-        round.id === updatedRound.id ? updatedRound : round
-      )
+    
+    const newRounds = rounds.map(round =>
+      round.id === updatedRound.id ? updatedRound : round
     );
+    setRounds(newRounds);
+
+    // Save to Firebase
+    if (user) {
+      try {
+        await updateDoc(doc(db, "users", user.uid), {
+          rounds: newRounds
+        });
+      } catch (error) {
+        console.error("Error updating round:", error);
+      }
+    }
   };
 
   const homePageRounds = () => {
     return rounds.length === 0 ? (
       <p>No rounds recorded yet.</p>
     ) : (
-      rounds.slice(0, 3).map((round, index) => (
+      rounds.toReversed().slice(0, 3).map((round, index) => (
         <RoundHistory
           key={index}
           round={round}
@@ -101,123 +201,159 @@ function GolfApp() {
           isSelected={false}
           onClick={handleRoundClick}
           isHomePage={true}
+          onHover = {setHoveredRound}
         />
       ))
     );
   };
 
   const views = {
-    home: (
-      <HomePage
+    dashboard: (
+      <Dashboard
         roundHistory={homePageRounds}
         viewHistory={() => setCurrentView("viewHistory")}
+        viewStatistics={() => setCurrentView("viewStatistics")}
+        addRound={() => setCurrentView("addRound")}
         userProfile={profile}
+        onCustomStatChange={() => setCustomStatModalOpen(true)}
       />
     ),
+
 
     addRound: (
       <AddRound
         onClose={() => setCurrentView("viewHistory")}
         onAddRound={handleAddRound}
+        availableStats = {AVAILABLE_STATS}
+        onCustomStatChange={() => setCustomStatModalOpen(true)}
       />
     ),
 
     viewHistory: (
       <div className="round-history-container">
-        <button
-          className="add-round-from-history-button"
-          onClick={() => setCurrentView("addRound")}
-        >
-          Add
-        </button>
-
-        <h2>Round History</h2>
-
-        
-
-        {edit && (
+        <div className="round-history-header">
+          <h2>Round History</h2>
           <button
-            className="close-history-button"
-            onClick={handleSaveHistory}
+            className="close-icon"
+            onClick={() => setCurrentView("dashboard")}
           >
-            Save
+            ✕
           </button>
-        )}
+        </div>
 
-        {edit && selectedRounds.length > 0 && (
-          <>
+        <div className="round-history-content">
+          <div className="round-history-list-wrapper">
+            <div className="round-history-list">
+              {rounds.length === 0 ? (
+                <p className="no-rounds">No rounds recorded yet. Add your first round to get started!</p>
+              ) : (
+                rounds.toReversed().map((round, index) => (
+                  <RoundHistory
+                    key={index}
+                    round={round}
+                    index={index}
+                    editMode={edit}
+                    toggleSelect={handleToggleSelect}
+                    isSelected={selectedRounds.includes(index)}
+                    onClick={handleRoundClick}
+                    isClicked={clickedRound && round ? clickedRound.id === round.id : false}
+                    onRoundClick={setClickedRound}
+                    onHover = {setHoveredRound}
+                    registerRef={(el) => (roundRefs.current[round.id] = el)}
+                  />
+                ))
+              )}
+            </div>
+          </div>
+
+          <div className="round-history-preview">
+            <RoundGraph clickedRound={clickedRound} allRounds={rounds} availableStats={AVAILABLE_STATS} />
+          </div>
+        </div>
+
+        <div className="round-history-footer">
+          <button
+            className="add-round-button"
+            onClick={() => setCurrentView("addRound")}
+          >
+            + Add Round
+          </button>
+          
+          {edit ? (
+            <>
+              {selectedRounds.length > 0 && (
+                <button
+                  className="header-btn danger"
+                  onClick={handleDeleteRounds}
+                >
+                  Delete ({selectedRounds.length})
+                </button>
+              )}
+              <button
+                className="header-btn secondary"
+                onClick={handleCancelEdit}
+                style={{background: '#546e5a', color: 'white', border: 'none'}}
+              >
+                Done
+              </button>
+            </>
+          ) : (
             <button
-              className="add-round-from-history-button"
-              onClick={handleCancelEdit}
-            >
-              Cancel
-            </button>
-
-            <button
-              className="delete-rounds-button"
-              onClick={handleDeleteRounds}
-            >
-              Delete
-            </button>
-          </>
-        )}
-
-        {rounds.length === 0 ? (
-          <p>No rounds recorded yet.</p>
-        ) : (
-          rounds.map((round, index) => (
-            <RoundHistory
-              key={index}
-              round={round}
-              index={index}
-              editMode={edit}
-              toggleSelect={handleToggleSelect}
-              isSelected={selectedRounds.includes(index)}
-              onClick={handleRoundClick}
-            />
-          ))
-        )}
-
-        {!edit && (
-          <>
-            <button
-              className="edit-history-button"
+              className="header-btn secondary"
               onClick={() => setEdit(true)}
+              style={{background: '#546e5a', color: 'white', border: 'none'}}
             >
               Edit
             </button>
-
-            <button
-              className="close-history-button"
-              onClick={() => setCurrentView("home")}
-            >
-              Close History
-            </button>
-          </>
-        )}
+          )}
+        </div>
       </div>
     ),
 
     viewStatistics: (
-      <Statistics rounds={rounds} userProfile = {profile} />
+      <Statistics rounds={rounds} availableStats={AVAILABLE_STATS} />
     ),
 
     viewRound: (
       <ViewRound
         selectedRound={currentRound}
         onSave={closeViewRound}
+        availableStats={AVAILABLE_STATS}
+      />
+    ),
+
+    home: (
+      <Home
+        SignUp={SignUpButton}
+        Login={LoginButton}
       />
     )
   };
 
   return (
     <div>
-      {currentView !== "viewHistory" && currentView !== "addRound" && (
+      {user && currentView !== "viewHistory" && currentView !== "addRound" && (
         <Hamburger
-          home={() => setCurrentView("home")}
+          dashboard={() => setCurrentView("dashboard")}
           addRound={() => setCurrentView("addRound")}
           viewHistory={() => setCurrentView("viewHistory")}
           viewStatistics={() => setCurrentView("viewStatistics")}
+          userProfile={profile}
+        />
+      )}
+
+      {clickedRound && currentView === "viewHistory" && (
+        <StatsPreview round={clickedRound} roundElementRef={{ current: roundRefs.current[clickedRound.id] }}/>
+      )}
+
+      {hoveredRound && currentView === "viewHistory" && !clickedRound && (
+        <StatsPreview round={hoveredRound} roundElementRef={{ current: roundRefs.current[hoveredRound.id] }}/>
+      )}
+
+      {customStatModalOpen && (
+        <CustomStatsModal
+          onClose={() => setCustomStatModalOpen(false)}
+          onAddCustomStat={handleOnAddCustomStat}
         />
       )}
 
@@ -230,7 +366,12 @@ function GolfApp() {
               : "0"
         }}
       >
-        {views[currentView] || views.home}
+        {currentView === "home" ? views.home : null}
+        {currentView === "dashboard" ? views.dashboard : null}
+        {currentView === "addRound" ? views.addRound : null}
+        {currentView === "viewHistory" ? views.viewHistory : null}
+        {currentView === "viewStatistics" ? views.viewStatistics : null}
+        {currentView === "viewRound" ? views.viewRound : null}
       </div>
     </div>
   );
