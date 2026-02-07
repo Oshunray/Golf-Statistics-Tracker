@@ -1,6 +1,6 @@
 import { useRef, useEffect, useState } from "react";
 
-function StatsPreview({ round, roundElementRef }) {
+function StatsPreview({ round, roundElementRef, availableStats }) {
     const [position, setPosition] = useState({ top: 0, left: 0 });
     const previewRef = useRef(null);
 
@@ -55,6 +55,11 @@ function StatsPreview({ round, roundElementRef }) {
         };
     }, [roundElementRef]);
 
+    // Filter stats that exist for this round
+    const displayStats = availableStats.filter(stat => 
+        round.stats && round.stats[stat.key]
+    );
+
     return (
         <div 
             ref={previewRef}
@@ -67,44 +72,39 @@ function StatsPreview({ round, roundElementRef }) {
         >
             <h4 className="stats-preview-title">Statistics</h4>
             <div className="stats-preview-list">
-                {round.stats.putts && (
-                    <div className="stat-preview-item">
-                        <span className="stat-preview-label">Putts</span>
-                        <span className="stat-preview-value">{round.stats.putts}</span>
-                    </div>
-                )}
-                {round.stats.fairways && (
-                    <div className="stat-preview-item">
-                        <span className="stat-preview-label">Fairways Hit</span>
-                        <span className="stat-preview-value">
-                            {round.stats.fairways.made}/{round.stats.fairways.outOf}
-                            <span className="stat-preview-percent">
-                                ({Math.round((round.stats.fairways.made / round.stats.fairways.outOf) * 100)}%)
-                            </span>
-                        </span>
-                    </div>
-                )}
-                {round.stats.greens && (
-                    <div className="stat-preview-item">
-                        <span className="stat-preview-label">Greens in Regulation</span>
-                        <span className="stat-preview-value">
-                            {round.stats.greens.made}/{round.stats.greens.outOf}
-                            <span className="stat-preview-percent">
-                                ({Math.round((round.stats.greens.made / round.stats.greens.outOf) * 100)}%)
-                            </span>
-                        </span>
-                    </div>
-                )}
-                {round.stats.up_and_downs && (
-                    <div className="stat-preview-item">
-                        <span className="stat-preview-label">Up & Downs</span>
-                        <span className="stat-preview-value">
-                            {round.stats.up_and_downs.made}/{round.stats.up_and_downs.outOf}
-                            <span className="stat-preview-percent">
-                                ({Math.round((round.stats.up_and_downs.made / round.stats.up_and_downs.outOf) * 100)}%)
-                            </span>
-                        </span>
-                    </div>
+                {displayStats.length === 0 ? (
+                    <p className="no-stats-message">No statistics recorded</p>
+                ) : (
+                    displayStats.map(stat => {
+                        const statValue = round.stats[stat.key];
+                        
+                        if (stat.type === "ratio") {
+                            // Display ratio stats (e.g., fairways, greens, up_and_downs)
+                            const percentage = statValue.outOf > 0 
+                                ? Math.round((statValue.made / statValue.outOf) * 100)
+                                : 0;
+                            
+                            return (
+                                <div key={stat.key} className="stat-preview-item">
+                                    <span className="stat-preview-label">{stat.label}</span>
+                                    <span className="stat-preview-value">
+                                        {statValue.made}/{statValue.outOf}
+                                        <span className="stat-preview-percent">
+                                            ({percentage}%)
+                                        </span>
+                                    </span>
+                                </div>
+                            );
+                        } else {
+                            // Display number stats (e.g., putts, three_putts, double_bogeys)
+                            return (
+                                <div key={stat.key} className="stat-preview-item">
+                                    <span className="stat-preview-label">{stat.label}</span>
+                                    <span className="stat-preview-value">{statValue}</span>
+                                </div>
+                            );
+                        }
+                    })
                 )}
             </div>
         </div>

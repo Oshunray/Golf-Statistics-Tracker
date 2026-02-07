@@ -1,8 +1,9 @@
 import { useState } from 'react';
 import { getStatValue, calculateMonthlyMovingAverage, calculateMovingYearlyAverages } from './statsUtils';
 import './RoundGraph.css';
+import { handicapStatisticsCorrelation } from './statsUtils'; 
 
-function RoundGraph({ clickedRound, allRounds, availableStats }) {
+function RoundGraph({ clickedRound, allRounds, availableStats, userProfile}) {
     const [currentStat, setCurrentStat] = useState(0);
     const [comparisonMode, setComparisonMode] = useState("allTime");
 
@@ -64,23 +65,42 @@ function RoundGraph({ clickedRound, allRounds, availableStats }) {
 
     const isPercentage = selectedStats[safeCurrentStat].type === "ratio";
 
+    // Get goal benchmark if available
+    const goalValue = userProfile && 
+                      userProfile.currentGoal && 
+                      handicapStatisticsCorrelation[userProfile.currentGoal] &&
+                      handicapStatisticsCorrelation[userProfile.currentGoal][statKey]
+                      ? handicapStatisticsCorrelation[userProfile.currentGoal][statKey]
+                      : null;
+
     // Only calculate if we have valid values
     const hasValidComparison = currentValue !== null && avgValue !== null && !isNaN(avgValue);
+    const hasGoalComparison = goalValue !== null && currentValue !== null;
 
     let maxValue = 100;
     let currentBarWidth = 0;
     let avgBarWidth = 0;
+    let goalBarWidth = 0;
 
-    if (hasValidComparison) {
+    if (hasValidComparison || hasGoalComparison) {
         const statType = selectedStats[safeCurrentStat] && selectedStats[safeCurrentStat].type;
         if (statType !== "ratio") {
-            maxValue = Math.max(currentValue, avgValue) * 1.1;
+            // For non-ratio stats, calculate max based on all values
+            const valuesToCompare = [currentValue];
+            if (avgValue !== null) valuesToCompare.push(avgValue);
+            if (goalValue !== null) valuesToCompare.push(goalValue);
+            maxValue = Math.max(...valuesToCompare) * 1.1;
         } else {
             maxValue = 100;
         }
 
         currentBarWidth = Math.min(100, (currentValue / maxValue) * 100);
-        avgBarWidth = Math.min(100, (avgValue / maxValue) * 100);
+        if (avgValue !== null) {
+            avgBarWidth = Math.min(100, (avgValue / maxValue) * 100);
+        }
+        if (goalValue !== null) {
+            goalBarWidth = Math.min(100, (goalValue / maxValue) * 100);
+        }
     }
 
     const handlePrevStat = () => {
@@ -162,6 +182,23 @@ function RoundGraph({ clickedRound, allRounds, availableStats }) {
                                 </div>
                             </div>
                         </div>
+
+                        {hasGoalComparison && (
+                            <div className="bar-row">
+                                <div className="bar-label">Goal Target ({userProfile.currentGoal})</div>
+                                <div className="bar-container">
+                                    <div
+                                        className="bar goal"
+                                        style={{ width: `${goalBarWidth}%` }}
+                                    >
+                                        <span className="bar-value">
+                                            {goalValue.toFixed(isPercentage ? 1 : 0)}
+                                            {isPercentage ? '%' : ''}
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                        )}
                     </>
                 ) : (
                     <div className="no-comparison-data">

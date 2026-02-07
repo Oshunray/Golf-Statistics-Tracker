@@ -13,11 +13,12 @@ function StatsModal({
   const [draftSelectedStats, setDraftSelectedStats] = useState([]);
   const [draftStats, setDraftStats] = useState({});
 
-  // Initialize state when modal opens
+  // Initialize state when modal opens - use key to force re-initialization
   useEffect(() => {
     setDraftSelectedStats([...selectedStats]);
     setDraftStats({ ...stats });
-  }, [selectedStats, stats]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []); // Empty dependency array - only run once when modal mounts
 
   const handleDone = () => {
     onSave(draftSelectedStats, draftStats);
@@ -77,9 +78,13 @@ function StatsModal({
                           onChange={e =>
                             setDraftStats(prev => ({
                               ...prev,
-                              [statKey]: { ...value, made: Number(e.target.value) }
+                              [statKey]: { 
+                                ...value, 
+                                made: e.target.value === "" ? "" : Number(e.target.value) 
+                              }
                             }))
                           }
+                          onFocus={e => e.target.select()}
                           className="ratio-input"
                         />
                         <span className="ratio-separator">/</span>
@@ -90,9 +95,13 @@ function StatsModal({
                           onChange={e =>
                             setDraftStats(prev => ({
                               ...prev,
-                              [statKey]: { ...value, outOf: Number(e.target.value) }
+                              [statKey]: { 
+                                ...value, 
+                                outOf: e.target.value === "" ? "" : Number(e.target.value) 
+                              }
                             }))
                           }
+                          onFocus={e => e.target.select()}
                           className="ratio-input"
                         />
                       </div>
@@ -106,13 +115,14 @@ function StatsModal({
                     <input
                       type="number"
                       placeholder={`Enter ${stat.label.toLowerCase()}`}
-                      value={draftStats[statKey] || ""}
+                      value={draftStats[statKey] ?? ""}
                       onChange={e =>
                         setDraftStats(prev => ({
                           ...prev,
-                          [statKey]: Number(e.target.value)
+                          [statKey]: e.target.value === "" ? "" : Number(e.target.value)
                         }))
                       }
+                      onFocus={e => e.target.select()}
                       className="stat-input"
                     />
                   </div>

@@ -30,6 +30,8 @@ export function calculateMonthlyAverages(rounds, statKey) {
     let value;
     if (statKey === 'score') {
       value = round.score;
+    } else if (statKey === 'par') {
+      value = round.score - round.par;
     } else if (round.stats && statKey in round.stats) {
       const stat = round.stats[statKey];
 
@@ -95,6 +97,8 @@ export function calculateMovingYearlyAverages(rounds, statKey) {
       let value;
       if (statKey === "score") {
         value = r.score;
+      } else if (statKey === "par") {
+        value = r.score - r.par;
       } else if (r.stats && statKey in r.stats) {
         const stat = r.stats[statKey];
         if (stat && typeof stat === "object" && "made" in stat && "outOf" in stat) {
@@ -129,6 +133,8 @@ export function calculateYearlyAverages(rounds, statKey) {
     let value;
     if (statKey === 'score') {
       value = round.score;
+    } else if (statKey === 'par') {
+      value = round.score - round.par;
     } else if (round.stats && statKey in round.stats) {
       const stat = round.stats[statKey];
 
@@ -201,6 +207,8 @@ export function StatSelector({ onStatChange, availableStats }) {
           minWidth: '200px'
         }}
       >
+        <option value="score">Score</option>
+        <option value="par">To Par</option>
         {statsOptions}
       </select>
     </div>
@@ -239,3 +247,86 @@ export function getStatValue(round, statKey) {
 
   return null;
 }
+
+export const handicapStatisticsCorrelation = {
+  "PGA": { 
+    fairways: 61, 
+    greens: 66, 
+    putts: 29, 
+    up_and_downs: 60, 
+    bogeyOnParFive: 0.1, 
+    three_putts: 0.5, 
+    bogey_under_130: 0.1,
+    two_chips: 0.2,
+    double_bogeys: 0.1 
+  },
+    "70-76": {
+      fairways: 56.5, greens: 56.8, putts: 31.3, up_and_downs: 50, bogeyOnParFive: 0.5, three_putts: 1, bogey_under_130: 0.5, two_chips: 0.5, double_bogeys: 0.3
+    },
+    "74-84": {
+      fairways: 51,
+      greens: 46.1,
+      putts: 32.5,
+      up_and_downs: 37.7,
+      bogeyOnParFive: 1,
+      three_putts: 2,
+      bogey_under_130: 1,
+      two_chips: 1,
+      double_bogeys: 1
+    },
+    "80-90": {
+      fairways: 49.3,
+      greens: 37.3,
+      putts: 33.9,
+      up_and_downs: 31.6,
+      bogeyOnParFive: 1.5,
+      three_putts: 2.5,
+      bogey_under_130: 2,
+      two_chips: 2,
+      double_bogeys: 2
+    },
+    "84-94": {
+      fairways: 48.1,
+      greens: 26.4,
+      putts: 34.8,
+      up_and_downs: 25.1,
+      bogeyOnParFive: 2,
+      three_putts: 3.5,
+      bogey_under_130: 3,
+      two_chips: 3,
+      double_bogeys: 3.5
+    },
+    "88-99": {
+      fairways: 42.8,
+      greens: 22.4,
+      putts: 36.1,
+      up_and_downs: 21.7,
+      bogeyOnParFive: 2.5,
+      three_putts: 4,
+      bogey_under_130: 4,
+      two_chips: 4,
+      double_bogeys: 5.5
+    },
+    "91-107": {
+      fairways: 43,
+      greens: 18.7,
+      putts: 37,
+      up_and_downs: 20.3,
+      bogeyOnParFive: 3,
+      three_putts: 5,
+      bogey_under_130: 5,
+      two_chips: 5,
+      double_bogeys: 9.2
+    },
+    "100+": {
+      fairways: 35,
+      greens: 12,
+      putts: 38,
+      up_and_downs: 12,
+      bogeyOnParFive: 4,
+      three_putts: 6,
+      bogey_under_130: 6,
+      two_chips: 7,
+      double_bogeys: 12
+    }
+  };

@@ -9,6 +9,7 @@ export function SignUpButton({ closeSignUp, loginFromSignUp }) {
     username: "",
     password: "",
     dob: "",
+    currentGoal: ""
   });
 
   const [loading, setLoading] = useState(false);

@@ -10,6 +10,7 @@ import './Account.css';
 import './RoundGraph.css';
 import './StatsPreview.css';
 import './CustomStatsModal.css';
+import './EditProfile.css';
 
 import { useState, useEffect, useRef } from "react";
 
@@ -22,6 +23,8 @@ import Hamburger from './Hamburger';
 import RoundGraph from './RoundGraph';
 import StatsPreview from './StatsPreview';
 import CustomStatsModal from './CustomStatsModal';
+
+import { EditProfileModal } from './Dashboard';
 
 import Home from './Home';
 import { SignUpButton, LoginButton } from './Account';
@@ -41,6 +44,7 @@ function GolfApp() {
   const [clickedRound, setClickedRound] = useState(null);
   const [hoveredRound, setHoveredRound] = useState(null);
   const [customStatModalOpen, setCustomStatModalOpen] = useState(false);
+  const [showEditProfile, setShowEditProfile] = useState(false);
 
 
   const [AVAILABLE_STATS, setAvailableStats] = useState([
@@ -49,7 +53,7 @@ function GolfApp() {
     { key: "putts", label: "Putts", type: "number", min: 0 },
     { key: "up_and_downs", label: "Up and Downs", type: "ratio", min: 0 },
     { key: "bogeyOnParFive", label: "Bogeys on Par 5", type: "number", min: 0 },
-    { key: "three-putts", label: "Three Putts", type: "number", min: 0 },
+    { key: "three_putts", label: "Three Putts", type: "number", min: 0 },
     { key: "bogey_under_130", label: "Bogeys under 130 yards", type: "number", min: 0 },
     { key: "two_chips", label: "Two Chips", type: "number", min: 0 },
     { key: "double_bogeys", label: "Double Bogeys", type: "number", min: 0 }
@@ -60,7 +64,27 @@ function GolfApp() {
   const [user, setUser] = useState(null);
   const [profile, setProfile] = useState(null);
 
+
+
   const roundRefs = useRef({});
+
+  const changeUserProfile = async (updatedProfile) => {
+    if (!user) return;
+
+    try {
+      const userDocRef = doc(db, "users", user.uid);
+      await updateDoc(userDocRef, {
+        currentGoal: updatedProfile.currentGoal,
+      });
+
+      setProfile(updatedProfile);
+
+      console.log("Profile updated successfully!");
+    } catch (error) {
+      console.error("Error updating profile:", error);
+      alert("Failed to update profile. Please try again.");
+    }
+  };
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
@@ -74,7 +98,7 @@ function GolfApp() {
         if (snap.exists()) {
           const userData = snap.data();
           setProfile(userData);
-          // Load rounds from Firebase
+
           setRounds(userData.rounds || []);
 
           if (userData.availableStats) {
@@ -218,6 +242,7 @@ function GolfApp() {
         addRound={() => setCurrentView("addRound")}
         userProfile={profile}
         onCustomStatChange={() => setCustomStatModalOpen(true)}
+        openEditProfile={() => setShowEditProfile(true)}
       />
     ),
 
@@ -269,7 +294,7 @@ function GolfApp() {
           </div>
 
           <div className="round-history-preview">
-            <RoundGraph clickedRound={clickedRound} allRounds={rounds} availableStats={AVAILABLE_STATS} />
+            <RoundGraph clickedRound={clickedRound} allRounds={rounds} availableStats={AVAILABLE_STATS} userProfile={profile} />
           </div>
         </div>
 
@@ -345,17 +370,25 @@ function GolfApp() {
       )}
 
       {clickedRound && currentView === "viewHistory" && (
-        <StatsPreview round={clickedRound} roundElementRef={{ current: roundRefs.current[clickedRound.id] }} />
+        <StatsPreview round={clickedRound} roundElementRef={{ current: roundRefs.current[clickedRound.id] }} availableStats={AVAILABLE_STATS} />
       )}
 
       {hoveredRound && currentView === "viewHistory" && !clickedRound && (
-        <StatsPreview round={hoveredRound} roundElementRef={{ current: roundRefs.current[hoveredRound.id] }} />
+        <StatsPreview round={hoveredRound} roundElementRef={{ current: roundRefs.current[hoveredRound.id] }} availableStats={AVAILABLE_STATS} />
       )}
 
       {customStatModalOpen && (
         <CustomStatsModal
           onClose={() => setCustomStatModalOpen(false)}
           onAddCustomStat={handleOnAddCustomStat}
+        />
+      )}
+
+      {showEditProfile && (
+        <EditProfileModal
+          userProfile={profile}
+          onClose={() => setShowEditProfile(false)}
+          onSave={changeUserProfile}
         />
       )}
 

@@ -142,8 +142,24 @@
   box-shadow: 0 2px 8px rgba(122, 203, 155, 0.3);
 }
 
+.bar.current:hover {
+  background: linear-gradient(135deg, #20ce66 0%, #20da6a 100%);
+}
+
 .bar.average {
   background: linear-gradient(135deg, #cbd5e0 0%, #a0aec0 100%);
+}
+
+.bar.average:hover {
+  background: linear-gradient(135deg, #a0aec0 0%, #718096 100%);
+}
+.bar.goal {
+    background: linear-gradient(90deg, #fbbf24 0%, #f59e0b 100%);
+    box-shadow: 0 2px 4px rgba(251, 191, 36, 0.3);
+}
+
+.bar.goal:hover {
+    background: linear-gradient(90deg, #f59e0b 0%, #d97706 100%);
 }
 
 .bar-value {

@@ -1,13 +1,17 @@
 import './Dashboard.css';
+import { handicapStatisticsCorrelation } from './statsUtils';
+import { useState } from 'react';
+import './EditProfile.css';
 
-function Dashboard({ roundHistory, viewHistory, userProfile, addRound, viewStatistics }) {
+function Dashboard({ roundHistory, viewHistory, userProfile, addRound, viewStatistics, openEditProfile }) {
+  
   return (
     <div className="dashboard-container">
       {/* Hero Section */}
       <div className="dashboard-hero">
         <div className="hero-content">
           <h1 className="hero-title">Welcome Back, {userProfile?.username || 'Golfer'}! ⛳</h1>
-
+          <button className = "edit-profile-btn" onClick={openEditProfile}>Current Goal: {userProfile?.currentGoal || 'Set Your Goal Score!'}</button>
         </div>
         
         <div className="hero-profile">
@@ -20,9 +24,6 @@ function Dashboard({ roundHistory, viewHistory, userProfile, addRound, viewStati
               </div>
             )}
           </div>
-          <button className="edit-profile-btn" onClick={() => {}}>
-            Edit Profile
-          </button>
         </div>
       </div>
 
@@ -45,7 +46,6 @@ function Dashboard({ roundHistory, viewHistory, userProfile, addRound, viewStati
           <h3>View Statistics</h3>
           <p>Analyze your performance</p>
         </div>
-        
       </div>
 
       {/* Recent Rounds Section */}
@@ -77,3 +77,69 @@ function Dashboard({ roundHistory, viewHistory, userProfile, addRound, viewStati
 }
 
 export default Dashboard;
+
+
+export function EditProfileModal({ userProfile, onClose, onSave }) {
+  const [selectedGoal, setSelectedGoal] = useState(userProfile?.currentGoal || '');
+
+  const handleSave = () => {
+    if (onSave && selectedGoal) {
+      onSave({ ...userProfile, currentGoal: selectedGoal });
+      onClose();
+    }
+  };
+
+  return (
+    <div className="modal-overlay" onClick={onClose}>
+      <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+        <div className="modal-header">
+          <h2>Edit Profile</h2>
+          <button className="close-btn" onClick={onClose}>×</button>
+        </div>
+        
+        <div className="modal-body">
+          <div className="form-group">
+            <label htmlFor="goal-select">Select Your Goal Score Range</label>
+            <select
+              id="goal-select"
+              value={selectedGoal}
+              onChange={(e) => setSelectedGoal(e.target.value)}
+              className="goal-select"
+            >
+              <option value="">-- Select a Goal --</option>
+              {Object.keys(handicapStatisticsCorrelation).map(scoreRange => (
+                <option key={scoreRange} value={scoreRange}>
+                  {scoreRange}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          {selectedGoal && (
+            <div className="goal-stats-preview">
+              <h4>Target Statistics for {selectedGoal}:</h4>
+              <ul>
+                <li>Fairways: {handicapStatisticsCorrelation[selectedGoal].fairways}%</li>
+                <li>Greens in Regulation: {handicapStatisticsCorrelation[selectedGoal].greens}%</li>
+                <li>Putts: {handicapStatisticsCorrelation[selectedGoal].putts}</li>
+                <li>Up & Downs: {handicapStatisticsCorrelation[selectedGoal].up_and_downs}%</li>
+                <li>Three Putts: {handicapStatisticsCorrelation[selectedGoal].three_putts}</li>
+                <li>Double Bogeys: {handicapStatisticsCorrelation[selectedGoal].double_bogeys}</li>
+              </ul>
+            </div>
+          )}
+        </div>
+
+        <div className="modal-footer">
+          <button 
+            className="btn-save" 
+            onClick={handleSave}
+            disabled={!selectedGoal}
+          >
+            Save
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}

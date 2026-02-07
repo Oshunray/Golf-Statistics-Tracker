@@ -137,6 +137,30 @@ export const LineGraph = ({ rounds, statType, availableStats, dataType}) => {
     ]
   };
 
+  // compute suggested min/max to "dilate" the interior of the chart
+  const numericData = (dataValues || []).filter((v) => typeof v === "number" && Number.isFinite(v));
+  let suggestedMin;
+  let suggestedMax;
+  if (numericData.length === 0) {
+    suggestedMin = 0;
+    suggestedMax = 100;
+  } else {
+    const minVal = Math.min(...numericData);
+    const maxVal = Math.max(...numericData);
+    if (statType === "score") {
+      suggestedMin = Math.min(30, minVal - 5);
+      suggestedMax = maxVal + 5;
+    } else if (numericData.every((v) => v >= 0 && v <= 100)) {
+      const padding = (maxVal - minVal) * 0.1;
+      suggestedMin = Math.max(0, minVal - padding);
+      suggestedMax = Math.min(100, maxVal + padding);
+    } else {
+      const padding = (maxVal - minVal) * 0.1 || 5;
+      suggestedMin = minVal - padding;
+      suggestedMax = maxVal + padding;
+    }
+  }
+
   const options = {
     responsive: true,
     maintainAspectRatio: true,
@@ -159,6 +183,8 @@ export const LineGraph = ({ rounds, statType, availableStats, dataType}) => {
     scales: {
       y: {
         beginAtZero: false,
+        suggestedMin: suggestedMin,
+        suggestedMax: suggestedMax,
         title: {
           display: true,
           text: statType === "score" ? "Score" : "Value",
