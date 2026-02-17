@@ -96,7 +96,7 @@ function RoundHistory({
             className={`select ${isSelected ? "true" : ""}`}
             onClick={(e) => {
               e.stopPropagation();
-              toggleSelect(index);
+              toggleSelect(round.id);
             }}
           />
         )}

@@ -160,7 +160,7 @@ function GolfApp() {
   const handleDeleteRounds = async () => {
     if (!user) return;
 
-    const newRounds = rounds.filter((_, index) => !selectedRounds.includes(index));
+    const newRounds = rounds.filter(round => !selectedRounds.includes(round.id));
     setRounds(newRounds);
     setSelectedRounds([]);
 
@@ -174,11 +174,11 @@ function GolfApp() {
     }
   };
 
-  const handleToggleSelect = (index) => {
+  const handleToggleSelect = (roundId) => {
     setSelectedRounds(prev =>
-      prev.includes(index)
-        ? prev.filter(i => i !== index)
-        : [...prev, index]
+      prev.includes(roundId)
+        ? prev.filter(id => id !== roundId)
+        : [...prev, roundId]
     );
   };
 
@@ -281,7 +281,7 @@ function GolfApp() {
                     index={index}
                     editMode={edit}
                     toggleSelect={handleToggleSelect}
-                    isSelected={selectedRounds.includes(index)}
+                    isSelected={selectedRounds.includes(round.id)} // Changed from index to round.id
                     onClick={handleRoundClick}
                     isClicked={clickedRound && round ? clickedRound.id === round.id : false}
                     onRoundClick={setClickedRound}
