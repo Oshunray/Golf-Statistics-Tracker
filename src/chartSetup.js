@@ -9,9 +9,8 @@ import {
   Legend
 } from "chart.js";
 import { Line } from "react-chartjs-2";
-import { getStatLabel, getStatValues} from "./Statistics";
+import { getStatLabel, getStatValues } from "./Statistics";
 import { calculateAverage, calculateMovingYearlyAverages, calculateMonthlyMovingAverage, calculateMonthlyAverages, calculateYearlyAverages } from "./statsUtils";
-
 
 ChartJS.register(
   CategoryScale,
@@ -23,7 +22,10 @@ ChartJS.register(
   Legend
 );
 
-export const LineGraph = ({ rounds, statType, availableStats, dataType}) => {
+// Detect mobile once at render time
+const isMobile = () => window.innerWidth <= 600;
+
+export const LineGraph = ({ rounds, statType, availableStats, dataType }) => {
   if (!rounds || rounds.length === 0) {
     return (
       <div style={{ textAlign: "center", padding: "40px", color: "#546e5a" }}>
@@ -31,6 +33,8 @@ export const LineGraph = ({ rounds, statType, availableStats, dataType}) => {
       </div>
     );
   }
+
+  const mobile = isMobile();
 
   const filteredRounds = rounds.filter(round => {
     if (statType === "score") return round.score != null;
@@ -40,12 +44,11 @@ export const LineGraph = ({ rounds, statType, availableStats, dataType}) => {
 
   let labels;
   let dataValues;
-  
+
   if (dataType === "individual") {
     dataValues = filteredRounds.map((round) => {
       if (statType === "score") return round.score;
       if (statType === "par") return round.score - round.par;
-
       const stat = round.stats[statType];
       if (typeof stat === "object" && "made" in stat && "outOf" in stat) {
         return stat.outOf > 0 ? (stat.made / stat.outOf) * 100 : null;
@@ -55,28 +58,25 @@ export const LineGraph = ({ rounds, statType, availableStats, dataType}) => {
 
     labels = filteredRounds.map((round) => {
       const date = new Date(round.date);
-      return date.toLocaleDateString("en-US", {
-        month: "short",
-        day: "numeric",
-        year: "numeric",
-      });
+      // Shorter date format on mobile
+      return date.toLocaleDateString("en-US", mobile
+        ? { month: "short", day: "numeric" }
+        : { month: "short", day: "numeric", year: "numeric" }
+      );
     });
   } else if (dataType === "monthly") {
     const monthlyAverages = calculateMonthlyAverages(filteredRounds, statType);
     dataValues = monthlyAverages.map((entry) => entry.average);
-    labels = monthlyAverages.map((entry) => entry.yearMonth);
-    labels = labels.map((ym) => {
-      const [yearStr, monthStr] = ym.split("-");
+    labels = monthlyAverages.map((entry) => {
+      const [yearStr, monthStr] = entry.yearMonth.split("-");
       const year = Number(yearStr);
       const monthIndex = Number(monthStr) - 1;
       const date = new Date(year, monthIndex, 1);
-      if (!Number.isNaN(year) && year >= 0 && year < 100) {
-        date.setFullYear(year);
-      }
-      return date.toLocaleDateString("en-US", {
-        month: "short",
-        year: "numeric",
-      });
+      if (!Number.isNaN(year) && year >= 0 && year < 100) date.setFullYear(year);
+      return date.toLocaleDateString("en-US", mobile
+        ? { month: "short" }
+        : { month: "short", year: "numeric" }
+      );
     });
   } else if (dataType === "yearly") {
     const yearlyAverages = calculateYearlyAverages(filteredRounds, statType);
@@ -97,15 +97,14 @@ export const LineGraph = ({ rounds, statType, availableStats, dataType}) => {
         borderColor: "rgba(122, 203, 155, 1)",
         backgroundColor: "rgba(122, 203, 155, 0.2)",
         tension: 0.15,
-        pointRadius: 5,
-        pointHoverRadius: 7,
+        pointRadius: mobile ? 3 : 5,
+        pointHoverRadius: mobile ? 5 : 7,
         pointBackgroundColor: "rgba(122, 203, 155, 1)",
         pointBorderColor: "#fff",
         pointBorderWidth: 2
       },
-      
       {
-        label: "All-Time Average",
+        label: "All-Time Avg",
         data: Array(dataValues.length).fill(allTimeAverage),
         borderDash: [5, 5],
         borderColor: "rgba(26, 228, 107, 0.8)",
@@ -115,7 +114,7 @@ export const LineGraph = ({ rounds, statType, availableStats, dataType}) => {
         tension: 0
       },
       {
-        label: "Moving Yearly Average",
+        label: "Yearly Avg",
         data: Array(dataValues.length).fill(yearlyMovingAverages),
         borderDash: [5, 5],
         borderColor: "rgba(28, 42, 233, 0.8)",
@@ -125,7 +124,7 @@ export const LineGraph = ({ rounds, statType, availableStats, dataType}) => {
         tension: 0
       },
       {
-        label: "Monthly Moving Average",
+        label: "Monthly Avg",
         data: Array(dataValues.length).fill(monthlyMovingAverages),
         borderDash: [5, 5],
         borderColor: "rgba(218, 43, 31, 0.8)",
@@ -137,10 +136,9 @@ export const LineGraph = ({ rounds, statType, availableStats, dataType}) => {
     ]
   };
 
-  // compute suggested min/max to "dilate" the interior of the chart
+  // Compute suggested min/max
   const numericData = (dataValues || []).filter((v) => typeof v === "number" && Number.isFinite(v));
-  let suggestedMin;
-  let suggestedMax;
+  let suggestedMin, suggestedMax;
   if (numericData.length === 0) {
     suggestedMin = 0;
     suggestedMax = 100;
@@ -163,45 +161,85 @@ export const LineGraph = ({ rounds, statType, availableStats, dataType}) => {
 
   const options = {
     responsive: true,
-    maintainAspectRatio: true,
+    // On mobile: disable fixed aspect ratio so we can control height via the container
+    maintainAspectRatio: !mobile,
+    aspectRatio: mobile ? undefined : 2,
     plugins: {
-      legend: { display: true, position: "top" },
+      legend: {
+        display: true,
+        position: mobile ? "bottom" : "top",
+        labels: {
+          font: { size: mobile ? 10 : 12 },
+          boxWidth: mobile ? 20 : 40,
+          padding: mobile ? 8 : 10,
+          // Wrap long labels on mobile
+          usePointStyle: true,
+          pointStyleWidth: mobile ? 8 : 10
+        }
+      },
       title: {
         display: true,
         text: getStatLabel(statType, availableStats),
-        font: { size: 18, weight: "bold" },
-        color: "#1f3d2b"
+        font: { size: mobile ? 13 : 18, weight: "bold" },
+        color: "#1f3d2b",
+        padding: { bottom: mobile ? 8 : 16 }
       },
       tooltip: {
         backgroundColor: "rgba(31, 61, 43, 0.9)",
         titleColor: "#fff",
         bodyColor: "#fff",
-        padding: 12,
-        cornerRadius: 8
+        padding: mobile ? 8 : 12,
+        cornerRadius: 8,
+        // Larger touch targets on mobile
+        intersect: false,
+        mode: "index"
       }
     },
     scales: {
       y: {
         beginAtZero: false,
-        suggestedMin: suggestedMin,
-        suggestedMax: suggestedMax,
+        suggestedMin,
+        suggestedMax,
         title: {
-          display: true,
+          display: !mobile, // Hide y-axis title on mobile to save space
           text: statType === "score" ? "Score" : "Value",
           color: "#1f3d2b",
           font: { size: 14, weight: "bold" }
         },
+        ticks: {
+          font: { size: mobile ? 10 : 12 },
+          maxTicksLimit: mobile ? 5 : 8
+        },
         grid: { color: "rgba(122, 203, 155, 0.1)" }
       },
       x: {
-        title: { display: true, text: "Date", color: "#1f3d2b", font: { size: 14, weight: "bold" } },
+        title: {
+          display: !mobile, // Hide x-axis title on mobile to save space
+          text: "Date",
+          color: "#1f3d2b",
+          font: { size: 14, weight: "bold" }
+        },
+        ticks: {
+          font: { size: mobile ? 9 : 12 },
+          maxRotation: mobile ? 45 : 0,
+          autoSkip: true,
+          maxTicksLimit: mobile ? 6 : 12 // Show fewer labels on mobile
+        },
         grid: { display: false }
       }
     }
   };
 
   return (
-    <div style={{ padding: "20px", background: "#fff", borderRadius: "16px", boxShadow: "0 4px 12px rgba(0,0,0,0.1)" }}>
+    <div style={{
+      padding: mobile ? "12px" : "20px",
+      background: "#fff",
+      borderRadius: "16px",
+      boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
+      // Fixed height container on mobile so chart fills it properly
+      height: mobile ? "300px" : "auto",
+      position: "relative"
+    }}>
       <Line options={options} data={lineChartData} />
     </div>
   );

@@ -1,4 +1,4 @@
-/* Modal overlay - just like login/signup */
+/* Modal overlay */
 .home-modal-overlay {
   position: fixed;
   top: 0;
@@ -8,6 +8,7 @@
   background: linear-gradient(135deg, #0f4c3a 0%, #1a7a5e 50%, #2d8659 100%);
   z-index: 2000;
   overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
 }
 
 .home-container {
@@ -16,6 +17,7 @@
   align-items: center;
   justify-content: center;
   padding: 20px;
+  box-sizing: border-box;
 }
 
 .home-content {
@@ -37,7 +39,9 @@
   border-radius: 50%;
   padding: 20px;
   backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
   animation: float 3s ease-in-out infinite;
+  box-sizing: border-box;
 }
 
 .golf-icon svg {
@@ -78,6 +82,8 @@
   cursor: pointer;
   transition: all 0.3s ease;
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+  min-height: 44px;
+  touch-action: manipulation;
 }
 
 .home-login-btn {
@@ -114,6 +120,7 @@
 .feature-card {
   background: rgba(255, 255, 255, 0.1);
   backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
   border-radius: 20px;
   padding: 30px 20px;
   border: 1px solid rgba(255, 255, 255, 0.2);
@@ -146,39 +153,44 @@
 }
 
 @keyframes fadeInDown {
-  from {
-    opacity: 0;
-    transform: translateY(-30px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+  from { opacity: 0; transform: translateY(-30px); }
+  to   { opacity: 1; transform: translateY(0);     }
 }
 
 @keyframes fadeInUp {
-  from {
-    opacity: 0;
-    transform: translateY(30px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+  from { opacity: 0; transform: translateY(30px); }
+  to   { opacity: 1; transform: translateY(0);    }
 }
 
 @keyframes float {
-  0%, 100% {
-    transform: translateY(0);
-  }
-  50% {
-    transform: translateY(-10px);
-  }
+  0%, 100% { transform: translateY(0);     }
+  50%       { transform: translateY(-10px); }
 }
 
+/* ================================
+   MOBILE RESPONSIVENESS
+   ================================ */
+
 @media (max-width: 768px) {
+  .home-container {
+    padding: 30px 16px;
+    align-items: flex-start; /* Prevent squishing on short viewports */
+  }
+
+  .home-hero {
+    margin-bottom: 28px;
+  }
+
+  .golf-icon {
+    width: 64px;
+    height: 64px;
+    padding: 16px;
+    /* Reduce battery drain on mobile */
+    animation: none;
+  }
+
   .home-title {
-    font-size: 2.5rem;
+    font-size: 2.2rem;
   }
 
   .home-subtitle {
@@ -187,17 +199,48 @@
 
   .home-buttons {
     flex-direction: column;
-    gap: 15px;
+    gap: 12px;
+    margin-bottom: 40px;
+    align-items: center;
   }
 
   .home-login-btn,
   .home-signup-btn {
     width: 100%;
-    max-width: 300px;
-    margin: 0 auto;
+    max-width: 320px;
   }
 
   .home-features {
     grid-template-columns: 1fr;
+    gap: 14px;
+  }
+
+  .feature-card {
+    padding: 20px 16px;
+    /* Disable hover lift on touch — it gets "stuck" */
+    transition: none;
+  }
+
+  .feature-card:hover {
+    transform: none;
+  }
+
+  .feature-icon {
+    font-size: 2.2rem;
+    margin-bottom: 10px;
+  }
+
+  .feature-card h3 {
+    font-size: 1.1rem;
+  }
+
+  .feature-card p {
+    font-size: 0.9rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .home-title {
+    font-size: 1.8rem;
   }
 }

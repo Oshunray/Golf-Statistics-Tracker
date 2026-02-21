@@ -7,11 +7,13 @@
   bottom: 0;
   background: rgba(0, 0, 0, 0.6);
   backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
   display: flex;
   align-items: center;
   justify-content: center;
   z-index: 200;
-  padding: 20px;
+  padding: 16px;
+  box-sizing: border-box;
   animation: fadeIn 0.3s ease-out;
 }
 
@@ -23,6 +25,7 @@
   max-width: 600px;
   max-height: 90vh;
   overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
   box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
   animation: slideUp 0.3s ease-out;
 }
@@ -46,8 +49,8 @@
 }
 
 .close-btn {
-  width: 36px;
-  height: 36px;
+  width: 44px; /* Larger tap target */
+  height: 44px;
   border-radius: 50%;
   border: none;
   background: #f0f0f0;
@@ -60,6 +63,8 @@
   transition: all 0.2s ease;
   line-height: 1;
   padding: 0;
+  flex-shrink: 0;
+  touch-action: manipulation;
 }
 
 .close-btn:hover {
@@ -101,6 +106,8 @@
   border-radius: 12px;
   cursor: pointer;
   transition: all 0.2s ease;
+  min-height: 44px;
+  touch-action: manipulation;
 }
 
 .checkbox-item:hover {
@@ -113,6 +120,7 @@
   height: 20px;
   cursor: pointer;
   accent-color: #7acb9b;
+  flex-shrink: 0;
 }
 
 .checkbox-label {
@@ -152,11 +160,14 @@
   padding: 12px 16px;
   border: 2px solid #e6f4ed;
   border-radius: 12px;
-  font-size: 1rem;
+  font-size: 16px; /* Prevents iOS auto-zoom */
   color: #1f3d2b;
   background: #f8fdf9;
   transition: all 0.3s ease;
   box-sizing: border-box;
+  -webkit-appearance: none;
+  appearance: none;
+  min-height: 44px;
 }
 
 .stat-input:focus {
@@ -178,11 +189,14 @@
   padding: 12px 16px;
   border: 2px solid #e6f4ed;
   border-radius: 12px;
-  font-size: 1rem;
+  font-size: 16px; /* Prevents iOS auto-zoom */
   color: #1f3d2b;
   background: #f8fdf9;
   transition: all 0.3s ease;
   box-sizing: border-box;
+  -webkit-appearance: none;
+  appearance: none;
+  min-height: 44px;
 }
 
 .ratio-input:focus {
@@ -196,6 +210,7 @@
   font-size: 1.5rem;
   font-weight: 700;
   color: #546e5a;
+  flex-shrink: 0;
 }
 
 /* Footer */
@@ -219,16 +234,15 @@
   cursor: pointer;
   transition: all 0.3s ease;
   border: none;
-  position: relative;
+  min-height: 44px;
+  touch-action: manipulation;
 }
 
 .btn-cancel {
   background: white;
   color: #546e5a;
   border: 2px solid #e6f4ed;
-
 }
-
 .btn-cancel:hover {
   background: #f0f0f0;
   border-color: #d2eed8;
@@ -240,92 +254,103 @@
   box-shadow: 0 4px 12px rgba(122, 203, 155, 0.3);
   border: 2px solid #5fb882;
 }
-
 .btn-custom:hover {
   transform: translateY(-2px);
   box-shadow: 0 6px 20px rgba(122, 203, 155, 0.4);
   background: #7acb9b;
 }
+
 .btn-save {
   background: white;
   color: #546e5a;
   border: 2px solid #e6f4ed;
   box-shadow: 0 4px 12px rgba(122, 203, 155, 0.3);
 }
-
 .btn-save:hover {
   background: #f0f0f0;
   border-color: #d2eed8;
   transform: translateY(-2px);
   box-shadow: 0 6px 20px rgba(122, 203, 155, 0.4);
 }
-
-.btn-save:active {
-  transform: translateY(0);
-}
+.btn-save:active { transform: translateY(0); }
 
 /* Animations */
 @keyframes fadeIn {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
+  from { opacity: 0; }
+  to   { opacity: 1; }
 }
 
 @keyframes slideUp {
-  from {
-    opacity: 0;
-    transform: translateY(30px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+  from { opacity: 0; transform: translateY(30px); }
+  to   { opacity: 1; transform: translateY(0);    }
 }
 
 /* Scrollbar */
-.stats-modal::-webkit-scrollbar {
-  width: 8px;
-}
+.stats-modal::-webkit-scrollbar       { width: 8px; }
+.stats-modal::-webkit-scrollbar-track { background: #f1f1f1; }
+.stats-modal::-webkit-scrollbar-thumb { background: #7acb9b; border-radius: 4px; }
+.stats-modal::-webkit-scrollbar-thumb:hover { background: #5fb882; }
 
-.stats-modal::-webkit-scrollbar-track {
-  background: #f1f1f1;
-}
+/* ================================
+   MOBILE RESPONSIVENESS
+   ================================ */
 
-.stats-modal::-webkit-scrollbar-thumb {
-  background: #7acb9b;
-  border-radius: 4px;
-}
-
-.stats-modal::-webkit-scrollbar-thumb:hover {
-  background: #5fb882;
-}
-
-/* Responsive */
 @media (max-width: 640px) {
+  .stats-modal-overlay {
+    padding: 0;
+    align-items: flex-end;
+  }
+
   .stats-modal {
-    max-height: 100vh;
+    max-height: 92vh;
+    border-radius: 20px 20px 0 0;
+    animation: slideUpMobile 0.3s ease-out;
+  }
+
+  /* Drag handle */
+  .stats-modal::before {
+    content: '';
+    display: block;
+    width: 40px;
+    height: 4px;
+    background: #cbd5e0;
+    border-radius: 2px;
+    margin: 14px auto 0;
+  }
+
+  .stats-modal-header {
+    padding: 16px 20px;
     border-radius: 0;
   }
 
-  .stats-modal-header,
-  .stats-modal-body,
-  .stats-modal-footer {
+  .stats-modal-header h2 {
+    font-size: 1.4rem;
+  }
+
+  .stats-modal-body {
     padding: 20px;
   }
 
   .stats-checkboxes {
-    grid-template-columns: 1fr;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
   }
 
   .stats-modal-footer {
+    padding: 16px 20px 28px; /* Extra bottom for home indicator */
     flex-direction: column;
+    gap: 8px;
+    border-radius: 0;
   }
 
   .btn-cancel,
+  .btn-custom,
   .btn-save {
     width: 100%;
   }
+}
+
+@keyframes slideUpMobile {
+  from { opacity: 0; transform: translateY(60px); }
+  to   { opacity: 1; transform: translateY(0);    }
 }

@@ -22,27 +22,25 @@ body, html {
   opacity: 0;
   animation: fadeIn 0.5s forwards;
   z-index: 100;
+  padding: 16px; /* Prevents modal touching screen edges */
 }
 
 @keyframes fadeIn {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
+  from { opacity: 0; }
+  to { opacity: 1; }
 }
 
 .addRound {
   background: #f6fbf8;
   padding: 40px;
   border-radius: 24px;
-  width: 95%;
+  width: 100%;
   max-width: 600px;
   box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
   animation: slideUp 0.4s ease-out;
-  max-height: 95vh;
+  max-height: 90vh;
   overflow-y: auto;
+  -webkit-overflow-scrolling: touch; /* Smooth scroll on iOS */
   position: relative;
 }
 
@@ -85,10 +83,13 @@ body, html {
   border: 2px solid #e6f4ed;
   border-radius: 10px;
   box-sizing: border-box;
-  font-size: 16px;
+  font-size: 16px; /* Prevents iOS auto-zoom on focus */
   background: white;
   font-family: "Inter", sans-serif;
   transition: all 0.2s ease;
+  -webkit-appearance: none; /* Prevent iOS default styling */
+  appearance: none;
+  min-height: 44px; /* Apple minimum tap target */
 }
 
 .addRound input::placeholder {
@@ -105,7 +106,6 @@ body, html {
 
 .addRound select {
   cursor: pointer;
-  appearance: none;
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%231f3d2b' d='M6 9L1 4h10z'/%3E%3C/svg%3E");
   background-repeat: no-repeat;
   background-position: right 16px center;
@@ -117,11 +117,11 @@ body, html {
   background: white;
   color: #1f3d2b;
 }
+
 /* Close Button */
 .cancel-btn-AddRound {
   position: absolute;
   background: transparent;
-  right: 20px;
   border: 2px solid rgba(31, 61, 43, 0.2);
   color: #1f3d2b;
   width: 36px;
@@ -136,6 +136,11 @@ body, html {
   justify-content: center;
   top: 20px;
   right: 20px;
+  touch-action: manipulation;
+  min-width: 44px; /* Easier to tap on mobile */
+  min-height: 44px;
+  width: 44px;
+  height: 44px;
 }
 
 .cancel-btn-AddRound:hover {
@@ -144,6 +149,7 @@ body, html {
   color: #fc8181;
   transform: scale(1.1);
 }
+
 /* Statistics button */
 .addStatistics_optional {
   width: 100%;
@@ -159,6 +165,8 @@ body, html {
   font-family: "Inter", sans-serif;
   transition: all 0.3s ease;
   box-shadow: 0 4px 12px rgba(160, 174, 192, 0.2);
+  min-height: 44px;
+  touch-action: manipulation;
 }
 
 .addStatistics_optional:hover {
@@ -220,6 +228,8 @@ body, html {
   font-weight: 600;
   font-family: "Inter", sans-serif;
   transition: all 0.3s ease;
+  min-height: 44px;
+  touch-action: manipulation;
 }
 
 /* Cancel button */
@@ -263,13 +273,53 @@ body, html {
   background: #5fb882;
 }
 
-/* Responsive */
+/* ================================
+   MOBILE RESPONSIVENESS
+   ================================ */
+
 @media (max-width: 600px) {
+  .overlay {
+    padding: 0;
+    align-items: flex-end; /* Bottom sheet on mobile */
+  }
+
   .addRound {
-    padding: 30px 20px;
+    padding: 28px 18px 36px;
+    border-radius: 20px 20px 0 0;
+    max-height: 92vh;
+    max-width: 100%;
+    width: 100%;
+  }
+
+  /* Drag handle indicator */
+  .addRound::before {
+    content: '';
+    display: block;
+    width: 40px;
+    height: 4px;
+    background: #cbd5e0;
+    border-radius: 2px;
+    margin: 0 auto 24px;
   }
 
   .addRound h2 {
-    font-size: 24px;
+    font-size: 22px;
+    margin-bottom: 20px;
+  }
+
+  /* Stack action buttons vertically */
+  .action-buttons {
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .action-buttons button {
+    width: 100%;
+  }
+}
+
+@media (max-width: 400px) {
+  .addRound h2 {
+    font-size: 20px;
   }
 }

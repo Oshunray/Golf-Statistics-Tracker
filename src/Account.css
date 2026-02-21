@@ -9,11 +9,14 @@
   height: 100%;
   background: rgba(0, 0, 0, 0.6);
   backdrop-filter: blur(5px);
+  -webkit-backdrop-filter: blur(5px); /* Safari support */
   display: flex;
   align-items: center;
   justify-content: center;
   z-index: 1000;
   animation: fadeIn 0.3s ease-out;
+  padding: 16px; /* Prevents content from touching screen edges */
+  box-sizing: border-box;
 }
 
 /* Modal Content Box */
@@ -25,10 +28,13 @@
   border-radius: 20px;
   box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
   max-width: 450px;
-  width: 90%;
+  width: 100%;
   max-height: 90vh;
   overflow-y: auto;
   animation: slideUp 0.3s ease-out;
+  box-sizing: border-box;
+  /* Smooth scrolling on iOS */
+  -webkit-overflow-scrolling: touch;
 }
 
 /* Headings */
@@ -64,9 +70,12 @@
   padding: 12px 15px;
   border: 2px solid #e2e8f0;
   border-radius: 10px;
-  font-size: 1rem;
+  font-size: 1rem; /* Prevents iOS auto-zoom (must be >= 16px visually) */
   transition: all 0.3s ease;
   box-sizing: border-box;
+  /* Prevent iOS from styling inputs its own way */
+  -webkit-appearance: none;
+  appearance: none;
 }
 
 .signup-modal input:focus,
@@ -100,6 +109,9 @@
   cursor: pointer;
   transition: all 0.3s ease;
   width: calc(50% - 5px);
+  /* Ensure buttons are tappable on mobile */
+  min-height: 44px;
+  touch-action: manipulation;
 }
 
 .signup-modal > div > button:first-of-type,
@@ -190,17 +202,12 @@
   color: #0f4c3a;
   background: transparent;
   transform: none;
-  
 }
 
 /* Animations */
 @keyframes fadeIn {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
+  from { opacity: 0; }
+  to { opacity: 1; }
 }
 
 @keyframes slideUp {
@@ -214,13 +221,18 @@
   }
 }
 
-/* Mobile Responsiveness */
+/* ================================
+   MOBILE RESPONSIVENESS
+   ================================ */
+
+/* Small tablets and large phones (portrait) */
 @media (max-width: 768px) {
   .signup-modal > div,
   .login-modal > div,
   .logout-modal > div {
     padding: 30px 20px;
-    width: 95%;
+    border-radius: 16px;
+    max-height: 85vh;
   }
 
   .signup-modal h2,
@@ -228,15 +240,63 @@
     font-size: 1.5rem;
   }
 
+  /* Stack buttons vertically on mobile */
   .signup-modal > div > button,
   .login-modal > div > button,
   .logout-modal > div > button {
-    width: 100%;
+    width: 100% !important;
     margin-right: 0 !important;
     margin-top: 10px;
   }
 
   .login-modal > div > button:last-of-type {
     margin-top: 20px;
+  }
+}
+
+/* Small phones */
+@media (max-width: 480px) {
+  .signup-modal,
+  .login-modal,
+  .logout-modal {
+    /* Snap modal to bottom on very small screens for easier thumb reach */
+    align-items: flex-end;
+    padding: 0;
+  }
+
+  .signup-modal > div,
+  .login-modal > div,
+  .logout-modal > div {
+    border-radius: 20px 20px 0 0;
+    padding: 28px 18px 36px;
+    max-height: 92vh;
+    width: 100%;
+    max-width: 100%;
+  }
+
+  .signup-modal h2,
+  .login-modal h2 {
+    font-size: 1.3rem;
+    margin-bottom: 18px;
+  }
+
+  /* Make inputs taller for easier tapping */
+  .signup-modal input,
+  .login-modal input {
+    padding: 14px 15px;
+    font-size: 16px; /* Prevents iOS auto-zoom on focus */
+  }
+
+  /* Add a visual drag handle on bottom-sheet style modal */
+  .signup-modal > div::before,
+  .login-modal > div::before,
+  .logout-modal > div::before {
+    content: '';
+    display: block;
+    width: 40px;
+    height: 4px;
+    background: #cbd5e0;
+    border-radius: 2px;
+    margin: 0 auto 24px;
   }
 }

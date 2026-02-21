@@ -9,7 +9,7 @@
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
   z-index: 1000;
   backdrop-filter: blur(10px);
-  
+  -webkit-backdrop-filter: blur(10px);
 }
 
 .navbar-container {
@@ -22,13 +22,14 @@
   padding: 0 30px;
 }
 
-/* Brand/Logo - Same as home page */
+/* Brand/Logo */
 .navbar-brand {
   display: flex;
   align-items: center;
   gap: 12px;
   cursor: pointer;
   transition: transform 0.3s ease;
+  touch-action: manipulation;
 }
 
 .navbar-brand:hover {
@@ -45,6 +46,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  flex-shrink: 0;
 }
 
 .golf-logo svg {
@@ -80,6 +82,8 @@
   cursor: pointer;
   transition: all 0.3s ease;
   backdrop-filter: blur(10px);
+  min-height: 44px;
+  touch-action: manipulation;
 }
 
 .nav-link:hover {
@@ -108,6 +112,8 @@
   border-radius: 12px;
   cursor: pointer;
   transition: all 0.3s ease;
+  min-height: 44px;
+  touch-action: manipulation;
 }
 
 .profile-menu-btn:hover {
@@ -130,6 +136,7 @@
   font-weight: 700;
   color: white;
   font-size: 0.9rem;
+  flex-shrink: 0;
 }
 
 .dropdown-arrow {
@@ -182,6 +189,8 @@
   cursor: pointer;
   transition: all 0.2s ease;
   text-align: left;
+  min-height: 44px;
+  touch-action: manipulation;
 }
 
 .dropdown-link:hover {
@@ -240,7 +249,10 @@
   to { opacity: 1; }
 }
 
-/* Responsive Design */
+/* ================================
+   MOBILE RESPONSIVENESS
+   ================================ */
+
 @media (max-width: 968px) {
   .navbar-links {
     display: none;
@@ -258,7 +270,7 @@
 
 @media (max-width: 768px) {
   .navbar-container {
-    padding: 0 20px;
+    padding: 0 16px;
   }
 
   .brand-text {
@@ -266,20 +278,31 @@
   }
 
   .golf-logo {
-    width: 35px;
-    height: 35px;
+    width: 36px;
+    height: 36px;
     padding: 7px;
   }
 
+  /* Dropdown full width with safe margins */
   .dropdown-menu {
     right: 10px;
     left: 10px;
     width: auto;
+    top: 78px;
   }
 }
 
 @media (max-width: 480px) {
   .brand-text {
     display: none;
+  }
+
+  .navbar-container {
+    padding: 0 12px;
+  }
+
+  /* Dropdown slightly lower to clear navbar cleanly */
+  .dropdown-menu {
+    top: 76px;
   }
 }

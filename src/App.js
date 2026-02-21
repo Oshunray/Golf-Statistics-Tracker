@@ -4,7 +4,6 @@ import './ViewRound.css';
 import './Dashboard.css';
 import './StatsModal.css'
 import "./chartSetup";
-import './Statistics.css';
 import './Hamburger.css';
 import './Account.css';
 import './RoundGraph.css';

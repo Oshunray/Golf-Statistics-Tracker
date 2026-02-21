@@ -11,7 +11,7 @@
 .round-history-stats-preview {
   position: fixed;
   /* DO NOT SET left/top here - let JS control it */
-  
+
   width: 350px;
   background: white;
   border: 2px solid #e6f4ed;
@@ -78,14 +78,8 @@
 }
 
 @keyframes slideInFromLeft {
-  from {
-    opacity: 0;
-    transform: translateX(-10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateX(0);
-  }
+  from { opacity: 0; transform: translateX(-10px); }
+  to   { opacity: 1; transform: translateX(0);     }
 }
 
 .no-comparison-data {
@@ -93,4 +87,70 @@
   color: #546e5a;
   padding: 40px 20px;
   font-style: italic;
+}
+
+/* ================================
+   MOBILE RESPONSIVENESS
+   ================================
+   The fixed JS-positioned popup doesn't work well on mobile
+   (no room to render beside entries). On small screens we
+   switch it to a bottom-anchored sheet instead. Your JS
+   should check window.innerWidth <= 768 and skip the
+   position calculation entirely on mobile — CSS handles it.
+   ================================ */
+
+@media (max-width: 768px) {
+  .round-history-stats-preview {
+    /* Override JS-set position */
+    position: fixed !important;
+    left: 0 !important;
+    right: 0 !important;
+    bottom: 0 !important;
+    top: auto !important;
+
+    width: 100%;
+    max-width: 100%;
+    border-radius: 20px 20px 0 0;
+    border-bottom: none;
+    padding: 20px 20px 32px; /* extra bottom for home indicator */
+    box-shadow: 0 -4px 24px rgba(31, 61, 43, 0.15);
+    pointer-events: auto; /* Allow scrolling on mobile */
+    max-height: 50vh;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+
+    animation: slideUpFromBottom 0.25s ease-out;
+  }
+
+  /* Drag handle */
+  .round-history-stats-preview::before {
+    content: '';
+    display: block;
+    width: 40px;
+    height: 4px;
+    background: #cbd5e0;
+    border-radius: 2px;
+    margin: 0 auto 16px;
+  }
+
+  .stats-preview-list {
+    gap: 10px;
+  }
+
+  .stat-preview-item {
+    padding: 10px 12px;
+  }
+
+  .stat-preview-label {
+    font-size: 12px;
+  }
+
+  .stat-preview-value {
+    font-size: 15px;
+  }
+}
+
+@keyframes slideUpFromBottom {
+  from { opacity: 0; transform: translateY(40px); }
+  to   { opacity: 1; transform: translateY(0);    }
 }

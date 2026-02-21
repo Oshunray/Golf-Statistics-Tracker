@@ -11,17 +11,23 @@
   opacity: 0;
   animation: fadeIn 0.5s forwards;
   z-index: 300;
+  padding: 16px; /* Prevents modal touching screen edges */
+  box-sizing: border-box;
 }
 
 .modal-content {
   background: rgb(244, 252, 244);
   border-radius: 20px;
-  width: 90%;
+  width: 100%;
   max-width: 550px;
   padding: 40px;
   box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
   animation: slideDown 0.4s ease-out;
   position: relative;
+  max-height: 90vh;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch; /* Smooth scroll on iOS */
+  box-sizing: border-box;
 }
 
 .modal-content h2 {
@@ -39,8 +45,8 @@
   background: transparent;
   border: 2px solid rgba(31, 61, 43, 0.2);
   color: #1f3d2b;
-  width: 36px;
-  height: 36px;
+  width: 44px;  /* Increased for easier tapping */
+  height: 44px;
   border-radius: 50%;
   font-size: 18px;
   font-weight: bold;
@@ -49,6 +55,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  touch-action: manipulation;
 }
 
 .close-button:hover {
@@ -58,7 +65,7 @@
   transform: scale(1.1);
 }
 
-/* Full width form group (for statistic name) */
+/* Full width form group */
 .form-group.full-width {
   width: 100%;
   margin-bottom: 25px;
@@ -83,7 +90,6 @@
 .modal-content label {
   display: block;
   margin-bottom: 8px;
-  font-size: 0.95rem;
   color: #1f3d2b;
   font-weight: 600;
   text-transform: uppercase;
@@ -97,9 +103,12 @@
   border: 2px solid #e6f4ed;
   border-radius: 10px;
   box-sizing: border-box;
-  font-size: 1rem;
+  font-size: 16px; /* Prevents iOS auto-zoom on focus */
   background: white;
   transition: all 0.2s ease;
+  -webkit-appearance: none; /* Prevent iOS default styling */
+  appearance: none;
+  min-height: 44px;
 }
 
 .modal-content input::placeholder {
@@ -119,15 +128,17 @@
   border: 2px solid #e6f4ed;
   border-radius: 10px;
   box-sizing: border-box;
-  font-size: 1rem;
+  font-size: 16px; /* Prevents iOS auto-zoom on focus */
   background: white;
   cursor: pointer;
   transition: all 0.2s ease;
+  -webkit-appearance: none;
   appearance: none;
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%231f3d2b' d='M6 9L1 4h10z'/%3E%3C/svg%3E");
   background-repeat: no-repeat;
   background-position: right 16px center;
   padding-right: 40px;
+  min-height: 44px;
 }
 
 .modal-content select:focus {
@@ -136,18 +147,13 @@
   box-shadow: 0 0 0 4px rgba(122, 203, 155, 0.1);
 }
 
-/* HEAVILY STYLED SELECT OPTIONS */
 .form-group select option {
   padding: 14px 16px;
   font-size: 1rem;
   color: #1f3d2b;
   background: white;
   font-weight: 500;
-  border-radius: 8px;
-  margin: 4px 0;
-  transition: all 0.2s ease;
 }
-
 
 .add-button {
   padding: 14px 32px;
@@ -163,6 +169,8 @@
   white-space: nowrap;
   height: fit-content;
   margin-bottom: 21px;
+  min-height: 44px;
+  touch-action: manipulation;
 }
 
 .add-button:hover {
@@ -181,12 +189,8 @@
 }
 
 @keyframes fadeIn {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
+  from { opacity: 0; }
+  to { opacity: 1; }
 }
 
 @keyframes slideDown {
@@ -200,15 +204,69 @@
   }
 }
 
-/* Responsive - stack on small screens */
-@media (max-width: 500px) {
+/* ================================
+   MOBILE RESPONSIVENESS
+   ================================ */
+
+@media (max-width: 600px) {
+  .modal-backdrop {
+    padding: 0;
+    align-items: flex-end; /* Bottom sheet on mobile */
+  }
+
+  .modal-content {
+    border-radius: 20px 20px 0 0;
+    padding: 28px 18px 36px;
+    max-height: 92vh;
+    max-width: 100%;
+    width: 100%;
+    /* Switch to slide-up animation on mobile */
+    animation: slideUp 0.4s ease-out;
+  }
+
+  /* Drag handle indicator */
+  .modal-content::before {
+    content: '';
+    display: block;
+    width: 40px;
+    height: 4px;
+    background: #cbd5e0;
+    border-radius: 2px;
+    margin: 0 auto 24px;
+  }
+
+  .modal-content h2 {
+    font-size: 1.4rem;
+    margin-bottom: 20px;
+  }
+
+  /* Stack the type selector row vertically */
   .form-row-with-button {
     flex-direction: column;
     align-items: stretch;
+    gap: 0;
   }
 
   .add-button {
     width: 100%;
-    margin-top: 15px;
+    margin-top: 12px;
+    margin-bottom: 0;
+  }
+}
+
+@media (max-width: 400px) {
+  .modal-content h2 {
+    font-size: 1.2rem;
+  }
+}
+
+@keyframes slideUp {
+  from {
+    transform: translateY(50px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
   }
 }
