@@ -32,17 +32,17 @@ function Home({ SignUp, Login }) {
 
           <div className="home-features">
             <div className="feature-card" onClick={() => setShowLogin(true)}>
-              <div className="feature-icon">📊</div>
+              <div className="feature-icon"></div>
               <h3>Track Stats</h3>
               <p>Record every round and watch your progress</p>
             </div>
             <div className="feature-card" onClick={() => setShowLogin(true)}>
-              <div className="feature-icon">📈</div>
+              <div className="feature-icon"></div>
               <h3>Analyze Performance</h3>
               <p>View detailed analytics and trends</p>
             </div>
             <div className="feature-card" onClick={() => setShowLogin(true)}>
-              <div className="feature-icon">🏆</div>
+              <div className="feature-icon"></div>
               <h3>Improve Your Game</h3>
               <p>Identify strengths and areas to work on</p>
             </div>
